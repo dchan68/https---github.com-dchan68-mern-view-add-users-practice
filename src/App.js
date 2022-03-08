@@ -1,23 +1,76 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useState, useEffect } from "react";
+import Axios from "axios";
 
 function App() {
+  const [listOfUsers, setListOfUsers] = useState([]);
+  const [name, setName] = useState("");
+  const [age, setAge] = useState(0);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    Axios.get("http://localhost:3001/getUsers").then((response) => {
+      setListOfUsers(response.data);
+    });
+  }, []);
+
+  const createUser = () => {
+    Axios.post("http://localhost:3001/createUser", {
+      //represents object body since post requests requires data from the body. Recall const user = req.body from backend server in app.post
+      name, //could have wrote name: name but since name state is being passed to key name with same name, could leave it as name
+      age, //could have wrote age: age but since age state is being passed to key age with same name, could leave it as age
+      username, //could have wrote username: username but since username state is being passed to key username with same name, could leave it as username
+    }).then((response) => {
+      setListOfUsers([
+        ...listOfUsers,
+        {
+          name, //could have wrote name: name
+          age, //age:age
+          username, //username: username
+        },
+      ]);
+    });
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="usersDisplay">
+        {listOfUsers.map((user) => {
+          return (
+            <div>
+              <h1>Name: {user.name}</h1>
+              <h1>Age: {user.age}</h1>
+              <h1>Username: {user.username}</h1>
+            </div>
+          );
+        })}
+      </div>
+
+      <div>
+        <input
+          type="text"
+          placeholder="Name..."
+          //event will help get whatever user inputs
+          onChange={(event) => {
+            setName(event.target.value);
+          }}
+        />
+        <input
+          type="number"
+          placeholder="Age..."
+          onChange={(event) => {
+            setAge(event.target.value);
+          }}
+        />
+        <input
+          type="text"
+          placeholder="Username..."
+          onChange={(event) => {
+            setUsername(event.target.value);
+          }}
+        />
+        <button onClick={createUser}> Create User </button>
+      </div>
     </div>
   );
 }
